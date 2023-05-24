@@ -3,7 +3,6 @@ using Chat.Application.DTOs;
 using Chat.Application.Hubs;
 using Chat.Application.Models;
 using Chat.Domain.Models;
-using Chat.Domain.Specifications;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Chat.Application.Services
@@ -11,11 +10,6 @@ namespace Chat.Application.Services
     /// <inheritdoc/>
     public class ChatAppService : AppService, IChatAppService
     {
-        /// <summary>
-        /// A service that provide business rules for the message model.
-        /// </summary>
-        private readonly IMessageValidator MessageValidator;
-
         /// <summary>
         /// A service that provides iteration wioth the chat hub.
         /// </summary>
@@ -35,11 +29,9 @@ namespace Chat.Application.Services
         /// </param>
         public ChatAppService(
             IMapper mapper,
-            IHubContext<ChatHub> chatHubContext,
-            IMessageValidator messageValidator
+            IHubContext<ChatHub> chatHubContext
         ) : base(mapper)
         {
-            MessageValidator = messageValidator;
             ChatHubContext = chatHubContext;
         }
 
@@ -50,21 +42,13 @@ namespace Chat.Application.Services
         {
             return await ExecuteAction(async () =>
             {
-                var newMessage = Message.CreateNew(
-                    message.UserName,
-                    message.Text
-                );
+                var newMessage = new Message(message.UserName, message.Text);
 
-                var validationResult =
-                    await MessageValidator.ValidateAsync(newMessage);
-
-                if (!validationResult.IsValid)
+                if (!newMessage.IsValid())
                 {
-                    var errorMessage =
-                        string.Join(" ", validationResult.Errors.Select(x => x.ErrorMessage));
-
                     return ApplicationResponse.CreateError(
-                        errorMessage, StatusCodeEnum.BadRequest
+                        "Invalid Message",
+                        StatusCodeEnum.BadRequest
                     );
                 }
 

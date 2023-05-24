@@ -34,9 +34,7 @@ builder.Services.AddCors(options =>
 });
 
 // Add IOC Services
-builder.Services
-    .AddDomainServices()
-    .AddAppServices();
+builder.Services.AddAppServices();
 
 // Configure Auto Mapper
 AppMapper.Configure(builder.Services);

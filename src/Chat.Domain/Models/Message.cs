@@ -1,4 +1,6 @@
-﻿namespace Chat.Domain.Models
+﻿using Microsoft.AspNetCore.Builder;
+
+namespace Chat.Domain.Models
 {
     /// <summary>
     /// The message domain model.
@@ -34,28 +36,27 @@
         /// </param>
         public Message(
             string userName,
-            string text,
-            DateTime sendingTime
+            string text
         )
         {
             UserName = userName;
             Text = text;
-            SendingTime = sendingTime;
+            SendingTime = new DateTime();
         }
 
         /// <summary>
-        /// Creates a new instance of a message.
+        /// Verify if the current message state is valid.
         /// </summary>
-        /// <param name="userName">
-        /// The name of the user that has created the message.
-        /// </param>
-        /// <param name="text">
-        /// The message text.
-        /// </param>
-        /// <returns>A new instance of a message domain model.</returns>
-        public static Message CreateNew(
-            string userName,
-            string text
-        ) => new(userName, text, new DateTime());
+        /// <returns>True if valid, false if not valid.</returns>
+        public bool IsValid()
+        {
+            if (string.IsNullOrWhiteSpace(UserName))
+                return false;
+
+            if (string.IsNullOrWhiteSpace(Text))
+                return false;
+
+            return true;
+        }
     }
 }
